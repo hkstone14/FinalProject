@@ -2,7 +2,7 @@ version: "2"
 services:
   app:
     build: ./app
-    container_name: "Flask_App11"
+    container_name: "Flask_App12"
     depends_on:
       - db
     ports:
@@ -10,7 +10,7 @@ services:
 
   db:
     image: mysql:5.7
-    container_name: "MySQL_Database11"
+    container_name: "MySQL_Database12"
     ports:
       - "32000:3306"
     environment:

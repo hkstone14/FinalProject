@@ -1,0 +1,7 @@
+Flask
+flask-mysql
+simplejson
+flask-mysqldb
+wtforms
+passlib
+flask-WTF
