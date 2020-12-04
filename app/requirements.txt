@@ -6,3 +6,4 @@ wtforms
 passlib
 flask-WTF
 Flask-Mail
+python-dateutil

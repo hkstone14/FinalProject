@@ -1,10 +1,11 @@
-import datetime
-
-from flask import Flask, render_template, flash, redirect, url_for, session, request
+from typing import List, Dict
+import simplejson as json
+from flask import Flask, render_template, flash, redirect, url_for, session, request, Response
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Mail, Message
+from dateutil.parser import parse
 import os
 
 app = Flask(__name__)
@@ -62,14 +63,14 @@ def add_user():
     else:
         email_confirm = 'Thanks for signing up for covid-19 insight. Please follow this link to activate your account:'
         token = generate_confirmation_token(email)
-        confirm_url = url_for('confirm_email', token=token, _external=True)
+        confirm_url = url_for('confirm_email', token=token, _external=True, username=username)
         html = render_template('email.html', confirm_url=confirm_url, email_confirm=email_confirm)
         subject = "Please confirm your email"
         send_email(email, subject, html)
         flash('A confirmation email has been sent via email.', 'success')
         cursor.execute('INSERT INTO users (email, username, password) VALUES(%s, %s, %s)', (email, username, password))
         mysql.get_db().commit()
-        return redirect(url_for("index"))
+        return render_template("login.html")
 
 
 @app.route('/confirm/<token>')
@@ -84,7 +85,7 @@ def confirm_email(token):
     # user = User.query.filter_by(email=email).first_or_404()
     if user:
         flash('You have confirmed your account. Thanks!', 'success')
-    return redirect(url_for('index'))
+        return render_template("login.html", token=token)
 
 
 @app.route('/reset/<token>', methods=['GET', 'POST'])
@@ -126,7 +127,7 @@ def home():
         username = session['username']
         return render_template('home.html', user=username)
     else:
-        return redirect('index')
+        return redirect(url_for('index'))
 
 
 # User login
@@ -202,6 +203,125 @@ def logout():
     session.pop('username', None)
     flash('You are now logged off.', 'success')
     return render_template('login.html')
+
+
+#Chart Section
+
+
+@app.route('/dataView', methods=['GET'])
+def dataView():
+    user = {'username': 'covid Project'}
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered FROM us_covid19_daily')
+    result = cursor.fetchall()
+    return render_template('dataView.html', title='DataView', user=user, covid=result)
+
+
+@app.route('/statistics', methods=['GET'])
+def statistics():
+    return render_template('chart.html', title='Statistics')
+
+
+@app.route('/api/v1/covid', methods=['GET'])
+def api_browse():
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered FROM us_covid19_daily')
+    result = cursor.fetchall()
+    json_result = json.dumps(result);
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
+
+
+@app.route('/api/v1/covid/death', methods=['GET'])
+def api_death():
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT id,date,death FROM us_covid19_daily order by  date')
+    result = cursor.fetchall()
+    dates = []
+    deaths = []
+    for row in result:
+        date = parse(row['date'])
+        dates.append(date.strftime('%b %d, %y'))
+        deaths.append(row['death'])
+    result = {
+        'dates': dates,
+        'deaths': deaths,
+    }
+    json_result = json.dumps(result);
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
+
+
+@app.route('/api/v1/covid/positive', methods=['GET'])
+def api_positive_Negative():
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT id,date,positive,negative FROM us_covid19_daily order by date')
+    result = cursor.fetchall()
+    dates = []
+    postive =[]
+    negative = []
+    for row in result:
+        date = parse(row['date'])
+        dates.append(date.strftime('%b %d, %y'))
+        postive.append(row['positive'])
+        negative.append(row['negative'])
+    result = {
+        'dates': dates,
+        'positive': postive,
+        'negative': negative
+    }
+
+    json_result = json.dumps(result);
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
+
+
+@app.route('/api/v1/covid/<chart_type>', methods=['GET'])
+def api_covid_type(chart_type):
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT id,date,' + chart_type + ' FROM us_covid19_daily order by date')
+    result = cursor.fetchall()
+    dates = []
+    chart_data =[]
+    for row in result:
+        date = parse(row['date'])
+        dates.append(date.strftime('%b %d, %y'))
+        if row[chart_type] == None:
+            chart_data.append(0)
+        else:
+            chart_data.append(row[chart_type])
+    result = {
+        'dates': dates,
+        'chart_data': chart_data
+    }
+
+    json_result = json.dumps(result);
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
+
+
+@app.route('/api/v1/covid/Increse', methods=['GET'])
+def api_positive_Negative_Increse():
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT substr(date,5,2) as month,sum(positiveIncrease) as positiveIn,sum(negativeIncrease) as negativeIn FROM us_covid19_daily group by substr(date,5,2) ')
+    result = cursor.fetchall()
+    print(result)
+    dates = []
+    positiveIncrease = []
+    negativeIncrease = []
+    for row in result:
+
+        dates.append(row['month'])
+        positiveIncrease.append(row['positiveIn'])
+        negativeIncrease.append(row['negativeIn'])
+    result = {
+        'dates': dates,
+        'postiveIncrese': positiveIncrease,
+        'negativeIncrease': negativeIncrease
+    }
+    json_result = json.dumps(result);
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
 
 
 if __name__ == '__main__':

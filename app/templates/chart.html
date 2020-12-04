@@ -1,0 +1,178 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="container">
+        <div class="col-sm-6">
+            <script>
+                function updateChart(element) {
+                    console.log(element);
+
+                    $.get('/api/v1/covid/' + element, function (data, error) {
+                        console.log(data)
+                        var options = {
+                            type: 'line',
+                            data: {
+                                labels: data.dates,
+                                datasets: [
+                                    {
+                                        fill: false,
+                                        lineTension: 0.1,
+                                        backgroundColor: "rgba(75,192,192,0.4)",
+                                        borderColor: "rgba(75,192,192,1)",
+                                        pointHoverBackgroundColor: "rgba(75,192,192,1)",
+                                        pointHoverBorderColor: "rgba(220,220,220,1)",
+                                        pointHoverBorderWidth: 2,
+                                        pointRadius: 1,
+                                        pointHitRadius: 10, label: 'Positive cases',
+                                        data: data.chart_data,
+                                        borderWidth: 1
+                                    }
+                                ]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            reverse: false
+                                        }
+                                    }]
+                                }
+                            }
+                        }
+                        if (window.dynamic_chart != undefined) {
+                            window.dynamic_chart.destroy()
+
+                        }
+                        var ctx5 = document.getElementById('chart_type').getContext('2d');
+                        window.dynamic_chart = new Chart(ctx5, options);
+                    })
+                }
+            </script>
+
+            <select id="covid_type" onchange="updateChart($(this).val());">
+                <option value="onVentilatorCurrently" selected>On Ventilator Currently</option>
+                <option value="inIcuCurrently">In ICU Currently</option>
+                <option value="hospitalizedCurrently">Hospitalized Currently</option>
+            </select>
+            <canvas id="chart_type" width="50" height="50"></canvas>
+        </div>
+        <script>
+            updateChart($('#covid_type option:first').val())
+        </script>
+        <div class="col-sm-6">
+            <h4 class="card-title">Deaths / Date</h4>
+            <canvas id="death" width="50" height="50"></canvas>
+
+            <script>
+
+                $.get('/api/v1/covid/death', {}, function (data, error) {
+                    console.log(data)
+                    var options = {
+                        type: 'line',
+                        data: {
+                            labels: data.dates,
+                            datasets: [
+                                {
+                                    label: '# of Deaths',
+                                    data: data.deaths,
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        reverse: false
+                                    }
+                                }]
+                            }
+                        }
+                    }
+
+                    var ctx = document.getElementById('death').getContext('2d');
+                    new Chart(ctx, options);
+                })
+
+            </script>
+        </div>
+        <div class="col-sm-6">
+            <h4 class="card-title">Negative - Positive cases / Date</h4>
+            <canvas id="positive" width="50" height="50"></canvas>
+
+            <script>
+                $.get('/api/v1/covid/positive', {}, function (data, error) {
+                    console.log(data)
+                    var options = {
+                        type: 'line',
+                        data: {
+                            labels: data.dates,
+                            datasets: [
+                                {
+                                    label: 'Positive cases',
+                                    data: data.positive,
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Negative cases',
+                                    data: data.negative,
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        reverse: false
+                                    }
+                                }]
+                            }
+                        }
+                    }
+
+                    var ctx1 = document.getElementById('positive').getContext('2d');
+                    new Chart(ctx1, options);
+                })
+
+            </script>
+        </div>
+        <div class="col-sm-6">
+            <h4 class="card-title">Negative - Positive cases / Monthly</h4>
+            <canvas id="Increse" width="50" height="50"></canvas>
+            <script>
+
+                $.get('/api/v1/covid/Increse', {}, function (data, error) {
+                    var ctx3 = document.getElementById("Increse").getContext("2d");
+
+                    var data = {
+                        labels: data.dates,
+                        datasets: [{
+                            label: "Positive Increase",
+                            backgroundColor: "green",
+                            data: data.postiveIncrese
+                        }, {
+                            label: "Negative Increase",
+                            backgroundColor: "red",
+                            data: data.negativeIncrease
+                        }]
+                    };
+
+                    var myBarChart = new Chart(ctx3, {
+                        type: 'bar',
+                        data: data,
+                        options: {
+                            barValueSpacing: 20,
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        min: 0,
+                                    }
+                                }]
+                            }
+                        }
+                    });
+                })
+            </script>
+        </div>
+    </div>
+{% endblock %}

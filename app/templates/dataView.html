@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container">
+  <h3>All Information</h3>
+  <table class="table table-striped" style="text-align: center">
+    <thead>
+    <tr>
+        <th scope="col">Num #</th>
+        <th scope="col">Date</th>
+        <th scope="col">Positive</th>
+        <th scope="col">Negative</th>
+        <th scope="col">Hospitalized Currently</th>
+        <th scope="col">On Ventilator Currently</th>
+        <th scope="col">Death</th>
+        <th scope="col">Recovered</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for cov in covid %}
+    <tr>
+        <td><a href="view/{{cov.id}}">{{ cov.id }}</a></td>
+        <td>{{ cov.date }}</td>
+        <td>{{ cov.positive }}</td>
+        <td>{{ cov.negative }}</td>
+        <td>{{ cov.hospitalizedCurrently }}</td>
+        <td>{{ cov.onVentilatorCurrently }}</td>
+        <td>{{ cov.death }}</td>
+        <td>{{ cov.recovered }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}
