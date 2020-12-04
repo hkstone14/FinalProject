@@ -5,3 +5,4 @@ flask-mysqldb
 wtforms
 passlib
 flask-WTF
+Flask-Mail

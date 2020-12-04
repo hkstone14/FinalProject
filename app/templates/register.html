@@ -36,18 +36,18 @@
                 <div class="card mt-100">
                    {% with messages = get_flashed_messages(category_filter = ["success"]) %}
                     {% if messages %}
-                        <ul class=flashes>
+                        <ul  class="alert alert-success" role="alert" style="margin-top: 5px">
                             {% for message in messages %}
-                                <li style="color: green">{{ message }}</li>
+                                <li>{{ message }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
                 {% endwith %}
                 {% with messages = get_flashed_messages(category_filter = ["error"]) %}
                     {% if messages %}
-                        <ul class=flashes>
+                        <ul class="alert alert-danger" role="alert" style="margin-top: 5px">
                             {% for message in messages %}
-                                <li style="color: red">{{ message }}</li>
+                                <li>{{ message }}</li>
                             {% endfor %}
                         </ul>
                     {% endif %}
