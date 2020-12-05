@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% block content %}
     <div class="container">
-        <div class="col-sm-6">
+        <div class="col-sm-6" style="margin-bottom: 2%">
             <script>
                 function updateChart(element) {
                     console.log(element);
@@ -16,13 +16,13 @@
                                     {
                                         fill: false,
                                         lineTension: 0.1,
-                                        backgroundColor: "rgba(75,192,192,0.4)",
-                                        borderColor: "rgba(75,192,192,1)",
-                                        pointHoverBackgroundColor: "rgba(75,192,192,1)",
-                                        pointHoverBorderColor: "rgba(220,220,220,1)",
+                                        backgroundColor: "#360033",
+                                        borderColor: "#360033",
+                                        pointHoverBackgroundColor: "#360033",
+                                        pointHoverBorderColor: "#360033",
                                         pointHoverBorderWidth: 2,
                                         pointRadius: 1,
-                                        pointHitRadius: 10, label: 'Positive cases',
+                                        pointHitRadius: 10, label: 'Cases',
                                         data: data.chart_data,
                                         borderWidth: 1
                                     }
@@ -58,7 +58,7 @@
         <script>
             updateChart($('#covid_type option:first').val())
         </script>
-        <div class="col-sm-6">
+        <div class="col-sm-6" style="margin-bottom: 2%">
             <h4 class="card-title">Deaths / Date</h4>
             <canvas id="death" width="50" height="50"></canvas>
 
@@ -72,6 +72,15 @@
                             labels: data.dates,
                             datasets: [
                                 {
+                                     fill: false,
+                                        lineTension: 0.1,
+                                        backgroundColor: "#360033",
+                                        borderColor: "#360033",
+                                        pointHoverBackgroundColor: "#360033",
+                                        pointHoverBorderColor: "#360033",
+                                        pointHoverBorderWidth: 2,
+                                        pointRadius: 1,
+                                        pointHitRadius: 10,
                                     label: '# of Deaths',
                                     data: data.deaths,
                                     borderWidth: 1
@@ -95,7 +104,7 @@
 
             </script>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" style="margin-bottom: 2%">
             <h4 class="card-title">Negative - Positive cases / Date</h4>
             <canvas id="positive" width="50" height="50"></canvas>
 
@@ -108,11 +117,29 @@
                             labels: data.dates,
                             datasets: [
                                 {
+                                     fill: false,
+                                        lineTension: 0.1,
+                                        backgroundColor: "#360033",
+                                        borderColor: "#360033",
+                                        pointHoverBackgroundColor: "#360033",
+                                        pointHoverBorderColor: "#360033",
+                                        pointHoverBorderWidth: 2,
+                                        pointRadius: 1,
+                                        pointHitRadius: 10,
                                     label: 'Positive cases',
                                     data: data.positive,
                                     borderWidth: 1
                                 },
                                 {
+                                     fill: false,
+                                        lineTension: 0.1,
+                                        backgroundColor: "#0b8793",
+                                        borderColor: "#0b8793",
+                                        pointHoverBackgroundColor: "#0b8793",
+                                        pointHoverBorderColor: "#0b8793",
+                                        pointHoverBorderWidth: 2,
+                                        pointRadius: 1,
+                                        pointHitRadius: 10,
                                     label: 'Negative cases',
                                     data: data.negative,
                                     borderWidth: 1
@@ -136,7 +163,7 @@
 
             </script>
         </div>
-        <div class="col-sm-6">
+        <div class="col-sm-6" style="margin-bottom: 2%">
             <h4 class="card-title">Negative - Positive cases / Monthly</h4>
             <canvas id="Increse" width="50" height="50"></canvas>
             <script>
