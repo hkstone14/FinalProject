@@ -52,6 +52,8 @@
                 <option value="onVentilatorCurrently" selected>On Ventilator Currently</option>
                 <option value="inIcuCurrently">In ICU Currently</option>
                 <option value="hospitalizedCurrently">Hospitalized Currently</option>
+                <option value="positiveIncrease">Positive Cases Currently</option>
+                <option value="negativeIncrease">Negative Cases Currently</option>
             </select>
             <canvas id="chart_type" width="50" height="50"></canvas>
         </div>
@@ -241,8 +243,54 @@
                         }
                     }
 
-                    var ctx = document.getElementById('deathIncrease').getContext('2d');
-                    new Chart(ctx, options);
+                    var ctx5 = document.getElementById('deathIncrease').getContext('2d');
+                    new Chart(ctx5, options);
+                })
+
+            </script>
+        </div>
+   <div class="col-sm-6" style="margin-bottom: 2%">
+            <h4 class="card-title">Total Test Result Increase / Date</h4>
+            <canvas id="totalTestResultIncrease" width="50" height="50"></canvas>
+
+            <script>
+
+                $.get('/api/v1/covid/totalTestResultIncrease', {}, function (data, error) {
+                    console.log(data)
+                    var options = {
+                        type: 'line',
+                        data: {
+                            labels: data.dates,
+                            datasets: [
+                                {
+                                     fill: false,
+                                        lineTension: 0.1,
+                                        backgroundColor: "#360033",
+                                        borderColor: "#360033",
+                                        pointHoverBackgroundColor: "#360033",
+                                        pointHoverBorderColor: "#360033",
+                                        pointHoverBorderWidth: 2,
+                                        pointRadius: 1,
+                                        pointHitRadius: 10,
+                                    label: '# of Test Result Increase',
+                                    data: data.totaltestresultsincrease,
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        reverse: false
+                                    }
+                                }]
+                            }
+                        }
+                    }
+
+                    var ctx6 = document.getElementById('totalTestResultIncrease').getContext('2d');
+                    new Chart(ctx6, options);
                 })
 
             </script>

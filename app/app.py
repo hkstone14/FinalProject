@@ -342,6 +342,25 @@ def api_deathIncrease():
     resp = Response(json_result, status=200, mimetype='application/json')
     return resp
 
+@app.route('/api/v1/covid/totalTestResultIncrease', methods=['GET'])
+def api_totalTestResultIncrease():
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT id,date,totalTestResultsIncrease FROM us_covid19_daily order by  date')
+    result = cursor.fetchall()
+    dates = []
+    totaltestresultsincrease = []
+    for row in result:
+        date = parse(row['date'])
+        dates.append(date.strftime('%b %d, %y'))
+        totaltestresultsincrease.append(row['totalTestResultsIncrease'])
+    result = {
+        'dates': dates,
+        'totaltestresultsincrease': totaltestresultsincrease,
+    }
+    json_result = json.dumps(result);
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
