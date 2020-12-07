@@ -201,5 +201,51 @@
                 })
             </script>
         </div>
+     <div class="col-sm-6" style="margin-bottom: 2%">
+            <h4 class="card-title">Deaths Increase / Date</h4>
+            <canvas id="deathIncrease" width="50" height="50"></canvas>
+
+            <script>
+
+                $.get('/api/v1/covid/deathIncrease', {}, function (data, error) {
+                    console.log(data)
+                    var options = {
+                        type: 'line',
+                        data: {
+                            labels: data.dates,
+                            datasets: [
+                                {
+                                     fill: false,
+                                        lineTension: 0.1,
+                                        backgroundColor: "#360033",
+                                        borderColor: "#360033",
+                                        pointHoverBackgroundColor: "#360033",
+                                        pointHoverBorderColor: "#360033",
+                                        pointHoverBorderWidth: 2,
+                                        pointRadius: 1,
+                                        pointHitRadius: 10,
+                                    label: '# of Deaths Increase',
+                                    data: data.deaths,
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        reverse: false
+                                    }
+                                }]
+                            }
+                        }
+                    }
+
+                    var ctx = document.getElementById('deathIncrease').getContext('2d');
+                    new Chart(ctx, options);
+                })
+
+            </script>
+        </div>
     </div>
 {% endblock %}

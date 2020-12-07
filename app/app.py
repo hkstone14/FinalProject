@@ -323,6 +323,25 @@ def api_positive_Negative_Increse():
     resp = Response(json_result, status=200, mimetype='application/json')
     return resp
 
+@app.route('/api/v1/covid/deathIncrease', methods=['GET'])
+def api_deathIncrease():
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT id,date,deathIncrease FROM us_covid19_daily order by  date')
+    result = cursor.fetchall()
+    dates = []
+    deaths = []
+    for row in result:
+        date = parse(row['date'])
+        dates.append(date.strftime('%b %d, %y'))
+        deaths.append(row['deathIncrease'])
+    result = {
+        'dates': dates,
+        'deaths': deaths,
+    }
+    json_result = json.dumps(result);
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
