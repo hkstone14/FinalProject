@@ -11,8 +11,10 @@
         <th scope="col">Negative</th>
         <th scope="col">Hospitalized Currently</th>
         <th scope="col">On Ventilator Currently</th>
-        <th scope="col">Death</th>
+        <th scope="col">Total Death</th>
         <th scope="col">Recovered</th>
+        <th scope="col">Death Increase</th>
+        <th scope="col">Test Result Increase</th>
     </tr>
     </thead>
     <tbody>
@@ -26,6 +28,8 @@
         <td>{{ cov.onVentilatorCurrently }}</td>
         <td>{{ cov.death }}</td>
         <td>{{ cov.recovered }}</td>
+         <td>{{ cov.deathIncrease }}</td>
+        <td>{{ cov.totalTestResultsIncrease }}</td>
     </tr>
     {% endfor %}
     </tbody>

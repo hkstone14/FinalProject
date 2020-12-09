@@ -212,7 +212,7 @@ def logout():
 def dataView():
     user = {'username': 'covid Project'}
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered FROM us_covid19_daily')
+    cursor.execute('SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
     result = cursor.fetchall()
     return render_template('dataView.html', title='DataView', user=user, covid=result)
 
@@ -225,7 +225,7 @@ def statistics():
 @app.route('/api/v1/covid', methods=['GET'])
 def api_browse():
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered FROM us_covid19_daily')
+    cursor.execute('SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
     result = cursor.fetchall()
     json_result = json.dumps(result);
     resp = Response(json_result, status=200, mimetype='application/json')
@@ -361,6 +361,19 @@ def api_totalTestResultIncrease():
     resp = Response(json_result, status=200, mimetype='application/json')
     return resp
 
+@app.route('/covid/add', methods=['POST'])
+def form_insert_post():
+    cursor = mysql.get_db().cursor()
+    inputData = (request.form.get('date'), request.form.get('positive'), request.form.get('negative'),
+                 request.form.get('hospitalizedCurrently'), request.form.get('onVentilatorCurrently'), request.form.get('death'), request.form.get('recovered'), request.form.get('deathIncrease'), request.form.get('totalTestResultsIncrease'))
+    sql_insert_query = """INSERT INTO us_covid19_daily (date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s) """
+    cursor.execute(sql_insert_query, inputData)
+    mysql.get_db().commit()
+    return redirect("/", code=302)
+
+@app.route('/add', methods=['GET'])
+def Add():
+    return render_template('Add.html', title='Add')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
