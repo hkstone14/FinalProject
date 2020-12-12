@@ -6,10 +6,11 @@ CREATE TABLE IF NOT EXISTS users(
   ,email        VARCHAR(50) NOT NULL
   ,username     VARCHAR (20) NOT NULL
   ,password     VARCHAR(50)  NOT NULL
+  ,confirmed    VARCHAR(6) NOT NULL
   ,PRIMARY KEY (id)
 );
-INSERT INTO users(email,username,password) VALUES ('admin@gmail.com','admin123','admin@1234');
-INSERT INTO users(email,username,password) VALUES ('hari14@gmail.com','hk1234','hk@1234');
+INSERT INTO users(email,username,password,confirmed) VALUES ('admin@gmail.com','admin123','admin@1234','true');
+INSERT INTO users(email,username,password,confirmed) VALUES ('hari14@gmail.com','hk1234','hk@1234','true');
 
 CREATE TABLE IF NOT EXISTS us_covid19_daily (
     `id` int AUTO_INCREMENT,

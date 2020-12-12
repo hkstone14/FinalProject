@@ -24,7 +24,7 @@ app.config['MAIL_PASSWORD'] = 'Covid@1999'
 app.config['MAIL_PORT'] = 465
 app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_DEFAULT_SENDER'] = 'hkstone14@gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = 'covid19.insightlook@gmail.com'
 app.config['SECRET_KEY'] = 'my_precious'
 app.config['SECURITY_PASSWORD_SALT'] = 'my_precious_two'
 mail = Mail(app)
@@ -68,7 +68,8 @@ def add_user():
         subject = "Please confirm your email"
         send_email(email, subject, html)
         flash('A confirmation email has been sent via email.', 'success')
-        cursor.execute('INSERT INTO users (email, username, password) VALUES(%s, %s, %s)', (email, username, password))
+        cursor.execute('INSERT INTO users (email, username, password, confirmed) VALUES(%s, %s, %s, %s)',
+                       (email, username, password, 'false'))
         mysql.get_db().commit()
         return render_template("login.html")
 
@@ -77,15 +78,19 @@ def add_user():
 def confirm_email(token):
     try:
         email = confirm_token(token)
+        cursor = mysql.get_db().cursor()
+        cursor.execute('SELECT * FROM users WHERE email= %s', email)
+        user = cursor.fetchone()
+        # user = User.query.filter_by(email=email).first_or_404()
+        if user:
+            confirmed = 'true'
+            cursor.execute('UPDATE users SET confirmed = %s WHERE email= %s', (confirmed, email))
+            mysql.get_db().commit()
+            flash('You have confirmed your account. Thanks!', 'success')
+            return render_template("login.html", token=token)
     except:
         flash('The confirmation link is invalid or has expired.', 'danger')
-    cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM users WHERE email= %s', email)
-    user = cursor.fetchone()
-    # user = User.query.filter_by(email=email).first_or_404()
-    if user:
-        flash('You have confirmed your account. Thanks!', 'success')
-        return render_template("login.html", token=token)
+        return render_template('login.html')
 
 
 @app.route('/reset/<token>', methods=['GET', 'POST'])
@@ -139,11 +144,14 @@ def login():
         cursor = mysql.get_db().cursor()
         cursor.execute('SELECT * FROM users WHERE username= %s AND password= %s', (username, password))
         user = cursor.fetchone()
-        if user:
+        if user['confirmed'] == 'true':
             session['loggedin'] = True
             session['id'] = user['id']
             session['username'] = user['username']
             return redirect(url_for('home'))
+        elif user['confirmed'] == 'false':
+            flash('Please confirm your email to Login', 'error')
+            return render_template('login.html')
         else:
             flash('Incorrect username/password', 'error')
             return render_template('login.html')
@@ -205,14 +213,15 @@ def logout():
     return render_template('login.html')
 
 
-#Chart Section
+# Chart Section
 
 
 @app.route('/dataView', methods=['GET'])
 def dataView():
     user = {'username': 'covid Project'}
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
+    cursor.execute(
+        'SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
     result = cursor.fetchall()
     return render_template('dataView.html', title='DataView', user=user, covid=result)
 
@@ -225,7 +234,8 @@ def statistics():
 @app.route('/api/v1/covid', methods=['GET'])
 def api_browse():
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
+    cursor.execute(
+        'SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
     result = cursor.fetchall()
     json_result = json.dumps(result);
     resp = Response(json_result, status=200, mimetype='application/json')
@@ -258,7 +268,7 @@ def api_positive_Negative():
     cursor.execute('SELECT id,date,positive,negative FROM us_covid19_daily order by date')
     result = cursor.fetchall()
     dates = []
-    postive =[]
+    postive = []
     negative = []
     for row in result:
         date = parse(row['date'])
@@ -282,7 +292,7 @@ def api_covid_type(chart_type):
     cursor.execute('SELECT id,date,' + chart_type + ' FROM us_covid19_daily order by date')
     result = cursor.fetchall()
     dates = []
-    chart_data =[]
+    chart_data = []
     for row in result:
         date = parse(row['date'])
         dates.append(date.strftime('%b %d, %y'))
@@ -303,14 +313,14 @@ def api_covid_type(chart_type):
 @app.route('/api/v1/covid/Increse', methods=['GET'])
 def api_positive_Negative_Increse():
     cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT substr(date,5,2) as month,sum(positiveIncrease) as positiveIn,sum(negativeIncrease) as negativeIn FROM us_covid19_daily group by substr(date,5,2) ')
+    cursor.execute(
+        'SELECT substr(date,5,2) as month,sum(positiveIncrease) as positiveIn,sum(negativeIncrease) as negativeIn FROM us_covid19_daily group by substr(date,5,2) ')
     result = cursor.fetchall()
     print(result)
     dates = []
     positiveIncrease = []
     negativeIncrease = []
     for row in result:
-
         dates.append(row['month'])
         positiveIncrease.append(row['positiveIn'])
         negativeIncrease.append(row['negativeIn'])
@@ -322,6 +332,7 @@ def api_positive_Negative_Increse():
     json_result = json.dumps(result);
     resp = Response(json_result, status=200, mimetype='application/json')
     return resp
+
 
 @app.route('/api/v1/covid/deathIncrease', methods=['GET'])
 def api_deathIncrease():
@@ -342,6 +353,7 @@ def api_deathIncrease():
     resp = Response(json_result, status=200, mimetype='application/json')
     return resp
 
+
 @app.route('/api/v1/covid/totalTestResultIncrease', methods=['GET'])
 def api_totalTestResultIncrease():
     cursor = mysql.get_db().cursor()
@@ -361,19 +373,24 @@ def api_totalTestResultIncrease():
     resp = Response(json_result, status=200, mimetype='application/json')
     return resp
 
+
 @app.route('/covid/add', methods=['POST'])
 def form_insert_post():
     cursor = mysql.get_db().cursor()
     inputData = (request.form.get('date'), request.form.get('positive'), request.form.get('negative'),
-                 request.form.get('hospitalizedCurrently'), request.form.get('onVentilatorCurrently'), request.form.get('death'), request.form.get('recovered'), request.form.get('deathIncrease'), request.form.get('totalTestResultsIncrease'))
+                 request.form.get('hospitalizedCurrently'), request.form.get('onVentilatorCurrently'),
+                 request.form.get('death'), request.form.get('recovered'), request.form.get('deathIncrease'),
+                 request.form.get('totalTestResultsIncrease'))
     sql_insert_query = """INSERT INTO us_covid19_daily (date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s) """
     cursor.execute(sql_insert_query, inputData)
     mysql.get_db().commit()
     return redirect("/", code=302)
 
+
 @app.route('/add', methods=['GET'])
 def Add():
     return render_template('Add.html', title='Add')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
