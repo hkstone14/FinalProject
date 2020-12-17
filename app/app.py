@@ -142,16 +142,22 @@ def login():
         username = request.form['username']
         password = request.form['password']
         cursor = mysql.get_db().cursor()
-        cursor.execute('SELECT * FROM users WHERE username= %s AND password= %s', (username, password))
+        cursor.execute('SELECT * FROM users WHERE username= %s', username)
         user = cursor.fetchone()
-        if user['confirmed'] == 'true':
-            session['loggedin'] = True
-            session['id'] = user['id']
-            session['username'] = user['username']
-            return redirect(url_for('home'))
-        elif user['confirmed'] == 'false':
-            flash('Please confirm your email to Login', 'error')
-            return render_template('login.html')
+        if user:
+            if user['confirmed'] == 'true':
+                if password == user['password']:
+                    session['loggedin'] = True
+                    session['id'] = user['id']
+                    session['username'] = user['username']
+                    return redirect(url_for('home'))
+                else:
+                    flash('Incorrect password!', 'error')
+                    return render_template('login.html')
+
+            elif user['confirmed'] == 'false':
+                flash('Please confirm your email to Login', 'error')
+                return render_template('login.html')
         else:
             flash('Incorrect username/password', 'error')
             return render_template('login.html')
