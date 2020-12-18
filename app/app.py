@@ -6,6 +6,7 @@ from pymysql.cursors import DictCursor
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Mail, Message
 from dateutil.parser import parse
+import re
 import os
 
 app = Flask(__name__)
@@ -227,7 +228,7 @@ def dataView():
     user = {'username': 'covid Project'}
     cursor = mysql.get_db().cursor()
     cursor.execute(
-        'SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
+        'SELECT id,date,positive,negative,positiveIncrease,negativeIncrease,hospitalizedCurrently,inIcuCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
     result = cursor.fetchall()
     return render_template('dataView.html', title='DataView', user=user, covid=result)
 
@@ -241,7 +242,7 @@ def statistics():
 def api_browse():
     cursor = mysql.get_db().cursor()
     cursor.execute(
-        'SELECT id,date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
+        'SELECT id,date,positive,negative,positiveIncrease,negativeIncrease,hospitalizedCurrently,inIcuCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease FROM us_covid19_daily')
     result = cursor.fetchall()
     json_result = json.dumps(result);
     resp = Response(json_result, status=200, mimetype='application/json')
@@ -268,6 +269,69 @@ def api_death():
     return resp
 
 
+@app.route('/covid/add', methods=['POST'])
+def form_insert_post():
+    cursor = mysql.get_db().cursor()
+    cursor.execute(
+        'SELECT id,date,positive,negative,death,inIcuCumulative FROM us_covid19_daily order by  date desc limit 1')
+    result = cursor.fetchall()
+    for row in result:
+        tp = int(row['positive']) + int(request.form.get('positive'))
+        tn = int(row['negative']) + int(request.form.get('negative'))
+        td = int(row['death']) + int(request.form.get('death'))
+        icu = int(row['inIcuCumulative']) + int(request.form.get('icu'))
+        date = request.form.get('date')
+        date_1 = re.sub('-', '', date)
+
+    print(tp)
+    print(tn)
+    print(td)
+
+    print(date_1)
+    cursor = mysql.get_db().cursor()
+    inputData = (date_1, request.form.get('positive'), tp, request.form.get('negative'), tn,
+                 request.form.get('hc'), request.form.get('vc'), td, request.form.get('recovered'),
+                 request.form.get('death'),
+                 request.form.get('tri'), request.form.get('icu'), icu)
+    sql_insert_query = """INSERT INTO us_covid19_daily (date,positive,positiveIncrease,negative,negativeIncrease,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease,inIcuCurrently,inIcuCumulative) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) """
+    cursor.execute(sql_insert_query, inputData)
+    mysql.get_db().commit()
+    return redirect("/dataView", code=302)
+
+
+@app.route('/edit/<int:cov_id>', methods=['POST'])
+def form_update_post(cov_id):
+    cursor = mysql.get_db().cursor()
+    cov_id1 = int(cov_id) - 1
+    cursor.execute('SELECT positive,negative,death,inIcuCumulative FROM us_covid19_daily where id= %s', cov_id1)
+    result = cursor.fetchall()
+    for row in result:
+        tp = int(row['positive']) + int(request.form.get('positive'))
+        tn = int(row['negative']) + int(request.form.get('negative'))
+        td = int(row['death']) + int(request.form.get('death'))
+        icu = int(row['inIcuCumulative']) + int(request.form.get('icu'))
+    print(request.form)
+    cursor = mysql.get_db().cursor()
+
+    inputData = (request.form.get('date'), request.form.get('positive'), tp, request.form.get('negative'), tn,
+                 request.form.get('hc'), request.form.get('vc'), td, request.form.get('recovered'),
+                 request.form.get('death'),
+                 request.form.get('tri'), request.form.get('icu'), icu, cov_id)
+    sql_update_query = """UPDATE us_covid19_daily t SET t.date = %s, t.positiveIncrease = %s, t.positive = %s, t.negativeIncrease = %s, t.negative = %s,
+     t.hospitalizedCurrently = %s, t.onVentilatorCurrently = %s,t.deathIncrease = %s, t.recovered = %s, t.death = %s, t.totalTestResultsIncrease = %s, t.inIcuCurrently = %s, t.inIcuCumulative = %s WHERE t.id = %s """
+    cursor.execute(sql_update_query, inputData)
+    mysql.get_db().commit()
+    return redirect("/dataView", code=302)
+
+
+@app.route('/edit/<int:cov_id>', methods=['GET'])
+def form_edit_get(cov_id):
+    cursor = mysql.get_db().cursor()
+    cursor.execute('SELECT * FROM us_covid19_daily WHERE id=%s', cov_id)
+    result = cursor.fetchall()
+    return render_template('edit.html', title='Edit Form', cov=result[0])
+
+
 @app.route('/api/v1/covid/positive', methods=['GET'])
 def api_positive_Negative():
     cursor = mysql.get_db().cursor()
@@ -292,7 +356,7 @@ def api_positive_Negative():
     return resp
 
 
-@app.route('/api/v1/covid/<chart_type>', methods=['GET'])
+@app.route('/api/v2/covid/<chart_type>', methods=['GET'])
 def api_covid_type(chart_type):
     cursor = mysql.get_db().cursor()
     cursor.execute('SELECT id,date,' + chart_type + ' FROM us_covid19_daily order by date')
@@ -340,6 +404,61 @@ def api_positive_Negative_Increse():
     return resp
 
 
+@app.route('/api/v1/covid/BarCurrently', methods=['GET'])
+def api_Bar_currenty():
+    cursor = mysql.get_db().cursor()
+    cursor.execute(
+        'SELECT substr(date,5,2) as month,sum(inIcuCurrently ) as icu,sum(hospitalizedCurrently) as hos,sum(onVentilatorCurrently) as ven FROM us_covid19_daily group by substr(date,5,2) ')
+    result = cursor.fetchall()
+    print(result)
+    dates = []
+    icu = []
+    hos = []
+    ven = []
+    for row in result:
+        dates.append(row['month'])
+        icu.append(row['icu'])
+        hos.append(row['hos'])
+        ven.append(row['ven'])
+    result = {
+        'dates': dates,
+        'icu': icu,
+        'hos': hos,
+        'ven': ven,
+    }
+    json_result = json.dumps(result)
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
+
+
+@app.route('/api/v1/covid/LineCurrently', methods=['GET'])
+def api_Line_currenty():
+    cursor = mysql.get_db().cursor()
+    cursor.execute(
+        'SELECT date,inIcuCurrently,hospitalizedCurrently,onVentilatorCurrently FROM us_covid19_daily order by date')
+    result = cursor.fetchall()
+    print(result)
+    dates = []
+    icu = []
+    hos = []
+    ven = []
+    for row in result:
+        icu.append(row['inIcuCurrently'])
+        hos.append(row['hospitalizedCurrently'])
+        ven.append(row['onVentilatorCurrently'])
+        date = parse(row['date'])
+        dates.append(date.strftime('%b %d, %y'))
+    result = {
+        'dates': dates,
+        'icu': icu,
+        'hos': hos,
+        'ven': ven,
+    }
+    json_result = json.dumps(result)
+    resp = Response(json_result, status=200, mimetype='application/json')
+    return resp
+
+
 @app.route('/api/v1/covid/deathIncrease', methods=['GET'])
 def api_deathIncrease():
     cursor = mysql.get_db().cursor()
@@ -378,19 +497,6 @@ def api_totalTestResultIncrease():
     json_result = json.dumps(result);
     resp = Response(json_result, status=200, mimetype='application/json')
     return resp
-
-
-@app.route('/covid/add', methods=['POST'])
-def form_insert_post():
-    cursor = mysql.get_db().cursor()
-    inputData = (request.form.get('date'), request.form.get('positive'), request.form.get('negative'),
-                 request.form.get('hospitalizedCurrently'), request.form.get('onVentilatorCurrently'),
-                 request.form.get('death'), request.form.get('recovered'), request.form.get('deathIncrease'),
-                 request.form.get('totalTestResultsIncrease'))
-    sql_insert_query = """INSERT INTO us_covid19_daily (date,positive,negative,hospitalizedCurrently,onVentilatorCurrently,death,recovered,deathIncrease,totalTestResultsIncrease) VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s) """
-    cursor.execute(sql_insert_query, inputData)
-    mysql.get_db().commit()
-    return redirect("/", code=302)
 
 
 @app.route('/add', methods=['GET'])

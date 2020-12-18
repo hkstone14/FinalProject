@@ -1,15 +1,18 @@
 {% extends 'layout.html' %}
 {% block content %}
 <div class="container">
-  <h3>All Information</h3>
+  <h3 style="color: #9C1A1C; font-family: cursive">All Information</h3>
   <table class="table table-striped" style="text-align: center">
     <thead>
     <tr>
         <th scope="col">Num #</th>
         <th scope="col">Date</th>
         <th scope="col">Positive</th>
+         <th scope="col">Positive Increase</th>
         <th scope="col">Negative</th>
+         <th scope="col">Negative Increase</th>
         <th scope="col">Hospitalized Currently</th>
+        <th scope="col">ICU Currently</th>
         <th scope="col">On Ventilator Currently</th>
         <th scope="col">Total Death</th>
         <th scope="col">Recovered</th>
@@ -20,11 +23,14 @@
     <tbody>
     {% for cov in covid %}
     <tr>
-        <td><a href="view/{{cov.id}}">{{ cov.id }}</a></td>
+        <td><a href="edit/{{cov.id}}">{{ cov.id }}</a></td>
         <td>{{ cov.date }}</td>
         <td>{{ cov.positive }}</td>
+         <td>{{ cov.positiveIncrease }}</td>
         <td>{{ cov.negative }}</td>
+         <td>{{ cov.negativeIncrease }}</td>
         <td>{{ cov.hospitalizedCurrently }}</td>
+        <td>{{ cov.inIcuCurrently }}</td>
         <td>{{ cov.onVentilatorCurrently }}</td>
         <td>{{ cov.death }}</td>
         <td>{{ cov.recovered }}</td>

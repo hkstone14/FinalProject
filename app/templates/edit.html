@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block content %}
+<form action="/edit/{{ cov.id }}" method="POST" xmlns="http://www.w3.org/1999/html">
+    <div class="container" style="margin-bottom: 5%">
+
+
+     <h3 style="color: #9C1A1C; font-family: cursive ">Update Information</h3>
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer01">Date</label>
+      <input type="text" class="form-control is-valid" id="date" name="date" placeholder="Date in format yyyyMMDD" value="{{cov.date}}" required>
+
+    </div>
+     </div>
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer02">Positive Increase</label>
+      <input type="text" class="form-control is-valid" id="positive" name="positive" placeholder="Positive Increase" value="{{cov.positiveIncrease}}" required>
+    </div>
+
+    </div>
+
+      <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer03">Negative Increase</label>
+      <input type="text" class="form-control is-valid" id="negative" name ="negative" placeholder="Negative Increase" value="{{ cov.negativeIncrease }}"required>
+    </div>
+
+    </div>
+
+      <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer04">Hospitalized Currently</label>
+      <input type="text" class="form-control is-valid" id="hc" name="hc" placeholder="Hospitalized Currently" value="{{ cov.hospitalizedCurrently }}" required>
+    </div>
+      </div>
+    <div class="form-row">
+        <div class="col-md-4 mb-3">
+      <label for="validationServer05">On Ventilator Currently</label>
+      <input type="text" class="form-control is-valid" id="vc" name="vc" placeholder="On Ventilator Currently" value="{{ cov.onVentilatorCurrently }}"required>
+
+    </div>
+    </div>
+
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer06">Death Increase</label>
+      <input type="text" class="form-control is-valid" id="death" name="death" placeholder="Death Increase" value="{{ cov.deathIncrease }}"required>
+    </div>
+
+    </div>
+
+        <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer06">In ICU Increase</label>
+      <input type="text" class="form-control is-valid" id="icu" name="icu" placeholder="ICU Increase" value="{{ cov.inIcuCurrently }}" required>
+    </div>
+        </div>
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer07">Recovered</label>
+      <input type="text" class="form-control is-valid" id="recovered" name="recovered" placeholder="Recovered" value="{{ cov.recovered }}" required>
+    </div>
+     </div>
+     <div class="form-row">
+        <div class="col-md-4 mb-3">
+      <label for="validationServer08">Test Result Increase</label>
+      <input type="text" class="form-control is-valid" id="tri" name="tri" placeholder="Test Result Increase" value="{{ cov.totalTestResultsIncrease }}"required>
+
+    </div>
+    </div>
+
+  <button class="btn btn-primary" type="submit">Update</button>
+      </div>
+
+</form>
+{% endblock %}
+

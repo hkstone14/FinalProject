@@ -1,58 +1,82 @@
 {% extends "layout.html" %}
 {% block content %}
 <form action="/covid/add" method="POST">
- <div class="container">
-    <div class="row">
-        <div class="col">
-            <label for="date">Date</label>
-            <input id="date" type="text" class="form-control" placeholder="Date" name="date">
-        </div>
+ <div class="container" style="margin-bottom: 5%">
+
+
+     <h3 style="color: #9C1A1C; font-family: cursive ">Add New Information</h3>
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer01">Date</label>
+      <input type="date" class="form-control is-valid" id="date" name="date" placeholder="Date in format yyyyMMDD" value="{{dat}}" required>
+
     </div>
-    <div class="row">
-        <div class="col">
-            <label for="positive">Positive</label>
-            <input id="positive" type="text" class="form-control" placeholder="Positive"
-                   name="positive">
-        </div>
-        <div class="col">
-            <label for="negative">Negative</label>
-            <input id="negative" type="text" class="form-control" placeholder="Negative" name="negative">
-        </div>
-    </div>
-    <div class="row">
-         <div class="col">
-            <label for="hospitalizedCurrently">Hospitalized Currently</label>
-            <input id="hospitalizedCurrently" type="text" class="form-control" placeholder="Hospitalized Currently" name="hospitalizedCurrently">
-        </div>
-        <div class="col">
-            <label for="onVentilatorCurrently">On Ventilator Currently</label>
-            <input id="onVentilatorCurrently" type="text" class="form-control" placeholder="On Ventilator Currently"
-                   name="onVentilatorCurrently">
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <label for="death">Deaths</label>
-            <input id="death" type="text" class="form-control" placeholder="Deaths" name="death">
-        </div>
-        <div class="col">
-            <label for="deathIncrease">Death Increase</label>
-            <input id="deathIncrease" type="text" class="form-control" placeholder="Death Increase" name="deathIncrease">
-        </div>
-    </div>
-    <div class="row">
-         <div class="col">
-            <label for="recovered">Recovered</label>
-            <input id="recovered" type="text" class="form-control" placeholder="Recovered" name="recovered">
-        </div>
-         <div class="col">
-            <label for="totalTestResultsIncrease">Total Test Results Increase</label>
-            <input id="totalTestResultsIncrease" type="text" class="form-control" placeholder="Total TestResults Increase" name="totalTestResultsIncrease">
-        </div>
+     </div>
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer02">Positive Increase</label>
+      <input type="text" class="form-control is-valid" id="positive" name="positive" placeholder="Positive Increase" required>
     </div>
 
-      <button type="submit" class="btn btn-success">Add</button>
- </div>
+    </div>
+
+      <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer03">Negative Increase</label>
+      <input type="text" class="form-control is-valid" id="negative" name ="negative" placeholder="Negative Increase" required>
+    </div>
+
+    </div>
+
+      <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer04">Hospitalized Currently</label>
+      <input type="text" class="form-control is-valid" id="hc" name="hc" placeholder="Hospitalized Currently" required>
+    </div>
+      </div>
+    <div class="form-row">
+        <div class="col-md-4 mb-3">
+      <label for="validationServer05">On Ventilator Currently</label>
+      <input type="text" class="form-control is-valid" id="vc" name="vc" placeholder="On Ventilator Currently" required>
+
+    </div>
+    </div>
+
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer06">Death Increase</label>
+      <input type="text" class="form-control is-valid" id="death" name="death" placeholder="Death Increase" required>
+    </div>
+
+    </div>
+
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer06">In ICU Increase</label>
+      <input type="text" class="form-control is-valid" id="icu" name="icu" placeholder="ICU Increase" required>
+    </div>
+
+    </div>
+
+     <div class="form-row">
+    <div class="col-md-4 mb-3">
+      <label for="validationServer07">Recovered</label>
+      <input type="text" class="form-control is-valid" id="recovered" name="recovered" placeholder="Recovered" required>
+    </div>
+     </div>
+     <div class="form-row">
+        <div class="col-md-4 mb-3">
+      <label for="validationServer08">Test Result Increase</label>
+      <input type="text" class="form-control is-valid" id="tri" name="tri" placeholder="Test Result Increase" required>
+
+    </div>
+    </div>
+
+
+
+  <button class="btn btn-primary" type="submit">Insert</button>
+      </div>
+
 </form>
 
 {% endblock %}
