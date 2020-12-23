@@ -331,6 +331,15 @@ def form_edit_get(cov_id):
     result = cursor.fetchall()
     return render_template('edit.html', title='Edit Form', cov=result[0])
 
+@app.route('/delete/<int:cov_id>', methods=['GET'])
+def record_delete(cov_id):
+    cursor = mysql.get_db().cursor()
+
+    cursor.execute('delete FROM us_covid19_daily where id= %s', cov_id)
+    result = cursor.fetchall()
+
+    mysql.get_db().commit()
+    return redirect("/dataView", code=302)
 
 @app.route('/api/v1/covid/positive', methods=['GET'])
 def api_positive_Negative():
